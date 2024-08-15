@@ -1,0 +1,167 @@
+import React, { useState } from 'react';
+
+const questions = [
+  { id: 'name', type: 'text', question: 'מה שמך?' },
+  { id: 'floors', type: 'number', question: 'כמה קומות אתם רוצים בבית?' },
+  { id: 'rooms', type: 'number', question: 'כמה חדרים אתם צריכים?' },
+  { id: 'style', type: 'text', question: 'איזה סגנון עיצוב אתם מעדיפים?' },
+  { id: 'budget', type: 'number', question: 'מהו התקציב המשוער שלכם?' },
+  { id: 'area', type: 'number', question: 'מהו שטח הבנייה המבוקש (במ"ר)?' },
+  { id: 'outdoor', type: 'text', question: 'איזה סוג של חלל חיצוני אתם מעדיפים?' },
+  { id: 'special', type: 'text', question: 'האם יש תכונות מיוחדות שאתם רוצים בבית?' }
+];
+
+const SummaryReport = ({ answers, onBack, onSend, onEdit }) => (
+  <div style={{maxWidth: '500px', margin: 'auto', padding: '24px', backgroundColor: '#F5F2EE', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'}}>
+    <h2 style={{fontSize: '24px', fontWeight: 'bold', marginBottom: '24px', textAlign: 'center', color: '#D2A88F'}}>דוח מסכם</h2>
+    {questions.map((question) => (
+      <div key={question.id} style={{marginBottom: '16px', paddingBottom: '8px', borderBottom: '1px solid #E6D9CC'}}>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <strong style={{display: 'block', fontSize: '18px', color: '#8C8573', paddingRight: '20px'}}>{question.question}</strong>
+          <button onClick={() => onEdit(question.id)} style={{color: '#D2A88F', cursor: 'pointer'}}>
+            ערוך
+          </button>
+        </div>
+        <span style={{color: '#D2A88F', paddingRight: '20px'}}>{answers[question.id] || ''}</span>
+        {answers[`${question.id}_note`] && (
+          <p style={{color: '#8C8573', fontStyle: 'italic', marginTop: '4px', paddingRight: '20px'}}>הערה: {answers[`${question.id}_note`]}</p>
+        )}
+      </div>
+    ))}
+    <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '24px'}}>
+      <button onClick={onBack} style={{backgroundColor: '#8C8573', color: '#F5F2EE', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer'}}>
+        חזור
+      </button>
+      <button onClick={onSend} style={{backgroundColor: '#D2A88F', color: '#F5F2EE', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer'}}>
+        שלח לווצאפ
+      </button>
+    </div>
+  </div>
+);
+
+const Questionnaire = () => {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+
+  const handleAnswer = (questionId, answer, isNote = false) => {
+    setAnswers(prev => ({ ...prev, [isNote ? `${questionId}_note` : questionId]: answer }));
+  };
+
+  const handleNext = () => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      setIsCompleted(true);
+      setShowReport(true);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+    }
+  };
+
+  const handleSkipToEnd = () => {
+    setCurrentQuestion(questions.length - 1);
+  };
+
+  const sendToWhatsApp = () => {
+    const text = encodeURIComponent(`סיכום שאלון תכנון וילה:
+${questions.map(q => {
+  const answer = answers[q.id];
+  const note = answers[`${q.id}_note`];
+  return `${q.question} ${answer || 'לא נענה'}${note ? `\nהערה: ${note}` : ''}`;
+}).join('\n\n')}`);
+    
+    window.open(`https://wa.me/972507117383?text=${text}`);
+  };
+
+  const handleEdit = (questionId) => {
+    setCurrentQuestion(questions.findIndex(q => q.id === questionId));
+    setShowReport(false);
+    setIsCompleted(false);
+  };
+
+  const currentQ = questions[currentQuestion];
+
+  if (showReport) {
+    return <SummaryReport 
+      answers={answers} 
+      onBack={() => setShowReport(false)}
+      onSend={sendToWhatsApp}
+      onEdit={handleEdit}
+    />;
+  }
+
+  if (isCompleted) {
+    return (
+      <div style={{maxWidth: '500px', margin: 'auto', padding: '24px', backgroundColor: '#F5F2EE', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', textAlign: 'center'}}>
+        <h2 style={{fontSize: '24px', fontWeight: 'bold', marginBottom: '24px', color: '#D2A88F'}}>תודה שמילאת את השאלון!</h2>
+        <button onClick={() => setShowReport(true)} style={{backgroundColor: '#8C8573', color: '#F5F2EE', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer'}}>
+          צפה בדוח מסכם
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{maxWidth: '500px', margin: 'auto', padding: '24px', backgroundColor: '#F5F2EE', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'}}>
+      <div style={{marginBottom: '16px', backgroundColor: '#E6D9CC', borderRadius: '9999px'}}>
+        <div 
+          style={{
+            width: `${(currentQuestion + 1) / questions.length * 100}%`,
+            backgroundColor: '#D2A88F',
+            height: '8px',
+            borderRadius: '9999px',
+            transition: 'width 0.3s ease-in-out'
+          }}
+        />
+      </div>
+      <h2 style={{fontSize: '24px', fontWeight: 'bold', marginBottom: '24px', textAlign: 'center', color: '#8C8573', paddingRight: '20px'}}>{currentQ.question}</h2>
+      <input
+        type={currentQ.type}
+        onChange={(e) => handleAnswer(currentQ.id, e.target.value)}
+        style={{
+          width: '100%',
+          padding: '12px',
+          border: '1px solid #E6D9CC',
+          borderRadius: '4px',
+          marginBottom: '12px',
+          backgroundColor: '#F5F2EE',
+          color: '#8C8573'
+        }}
+        value={answers[currentQ.id] || ''}
+      />
+      <textarea
+        placeholder="הערות נוספות"
+        onChange={(e) => handleAnswer(currentQ.id, e.target.value, true)}
+        style={{
+          width: '100%',
+          padding: '12px',
+          border: '1px solid #E6D9CC',
+          borderRadius: '4px',
+          marginBottom: '24px',
+          backgroundColor: '#F5F2EE',
+          color: '#8C8573'
+        }}
+        value={answers[`${currentQ.id}_note`] || ''}
+      />
+      <div style={{display: 'flex', justifyContent: 'space-between'}}>
+        <button onClick={handlePrevious} disabled={currentQuestion === 0} style={{backgroundColor: '#8C8573', color: '#F5F2EE', padding: '8px 16px', borderRadius: '4px', cursor: currentQuestion === 0 ? 'not-allowed' : 'pointer', opacity: currentQuestion === 0 ? 0.5 : 1}}>
+          הקודם
+        </button>
+        <button onClick={handleSkipToEnd} style={{backgroundColor: '#E6D9CC', color: '#8C8573', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer'}}>
+          דלג לסוף
+        </button>
+        <button onClick={handleNext} style={{backgroundColor: '#D2A88F', color: '#F5F2EE', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer'}}>
+          {currentQuestion < questions.length - 1 ? 'הבא' : 'סיים'}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Questionnaire;
