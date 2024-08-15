@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/static/css/main.e6c13ad2.css",
+    "main.js": "/static/js/main.9eb9ddf3.js",
+    "static/js/213.042e5ac5.chunk.js": "/static/js/213.042e5ac5.chunk.js",
+    "static/js/732.fa4ea4b9.chunk.js": "/static/js/732.fa4ea4b9.chunk.js",
+    "static/js/453.c92e2a47.chunk.js": "/static/js/453.c92e2a47.chunk.js",
+    "static/media/sheinin-architects-logo.png": "/static/media/sheinin-architects-logo.df7fc43201ea73b80ca8.png",
+    "index.html": "/index.html",
+    "main.e6c13ad2.css.map": "/static/css/main.e6c13ad2.css.map",
+    "main.9eb9ddf3.js.map": "/static/js/main.9eb9ddf3.js.map",
+    "213.042e5ac5.chunk.js.map": "/static/js/213.042e5ac5.chunk.js.map",
+    "732.fa4ea4b9.chunk.js.map": "/static/js/732.fa4ea4b9.chunk.js.map",
+    "453.c92e2a47.chunk.js.map": "/static/js/453.c92e2a47.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.9eb9ddf3.js"
+  ]
+}
